@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>{{ document.title }}</h1>
+        
+        {% if document.document_file.name|lower|slice:'-4:' in '.jpg.jpeg.png.gif.bmp' %}
+            <img src="{{ document.document_file.url }}" class="img-fluid rounded" alt="{{ document.title }}">
+        {% else %}
+            <div class="alert alert-info">
+                <p>Этот документ нельзя просмотреть в браузере. Вы можете скачать его для просмотра.</p>
+                <a href="{% url 'download_document' document.pk %}" class="btn btn-primary">Скачать документ</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Информация о документе</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Описание:</strong><br>{{ document.description }}</p>
+                <p><strong>Дата документа:</strong><br>{{ document.original_date }}</p>
+                <p><strong>Тип:</strong><br>{{ document.get_document_type_display }}</p>
+                <p><strong>Дата загрузки:</strong><br>{{ document.upload_date }}</p>
+                
+                {% if document.keywords %}
+                <p><strong>Ключевые слова:</strong><br>
+                    {% for keyword in document.get_keywords_list %}
+                    <span class="badge bg-secondary">{{ keyword }}</span>
+                    {% endfor %}
+                </p>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'download_document' document.pk %}" class="btn btn-success">Скачать</a>
+                    <a href="{% url 'search' %}" class="btn btn-outline-primary">Назад к поиску</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

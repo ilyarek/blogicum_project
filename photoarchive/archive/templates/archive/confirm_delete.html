@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="card-title mb-0">Подтверждение удаления</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h5>Внимание!</h5>
+                    <p>Вы собираетесь удалить документ:</p>
+                    <p class="fw-bold">"{{ document.title }}"</p>
+                    <p class="mb-0">Это действие нельзя отменить. Все связанные файлы будут удалены безвозвратно.</p>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6>Информация о документе:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Тип:</strong> {{ document.get_document_type_display }}</li>
+                            <li><strong>Дата документа:</strong> {{ document.original_date }}</li>
+                            <li><strong>Дата загрузки:</strong> {{ document.upload_date|date:"d.m.Y H:i" }}</li>
+                            {% if document.document_file %}
+                            <li><strong>Файл:</strong> {{ document.document_file.name }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            🗑️ Да, удалить документ
+                        </button>
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

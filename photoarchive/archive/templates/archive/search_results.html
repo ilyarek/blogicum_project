@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Результаты поиска</h1>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Параметры поиска</h5>
+                <form method="get" action="{% url 'search' %}">
+                    {% for field in form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100">Искать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="alert alert-info">
+            Найдено документов: <strong>{{ documents_count }}</strong>
+        </div>
+        
+        <div class="row">
+            {% for doc in page_obj %}
+            <div class="col-md-4 mb-4">
+                <div class="card document-card">
+                    {% if doc.thumbnail %}
+                        <img src="{{ doc.thumbnail.url }}" class="card-img-top thumbnail" alt="{{ doc.title }}">
+                    {% else %}
+                        <div class="card-img-top thumbnail bg-light d-flex align-items-center justify-content-center">
+                            <span class="text-muted">Нет изображения</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ doc.title }}</h6>
+                        <p class="card-text small text-muted">
+                            {{ doc.original_date }}<br>
+                            {{ doc.document_type }}
+                        </p>
+                        {% if search_reasons.doc.id %}
+                        <div class="search-reasons">
+                            <strong>Причины поиска:</strong>
+                            <ul class="small">
+                                {% for reason in search_reasons.doc.id %}
+                                <li>{{ reason }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'document_detail' doc.pk %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    По вашему запросу ничего не найдено.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Назад</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Вперед</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

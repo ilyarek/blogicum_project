@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1>Админ-панель фотоархива</h1>
+        
+        <!-- Статистика -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ total_documents }}</h4>
+                        <p class="card-text">Всего документов</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ active_documents }}</h4>
+                        <p class="card-text">Активных документов</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ inactive_documents }}</h4>
+                        <p class="card-text">Неактивных документов</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ search_logs|length }}</h4>
+                        <p class="card-text">Поисков за сегодня</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Управление документами -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Управление документами</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Тип</th>
+                                <th>Дата документа</th>
+                                <th>Дата загрузки</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for document in documents %}
+                            <tr>
+                                <td>{{ document.title|truncatechars:30 }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ document.get_document_type_display }}</span>
+                                </td>
+                                <td>{{ document.original_date }}</td>
+                                <td>{{ document.upload_date|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    {% if document.is_active %}
+                                        <span class="badge bg-success">Активен</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Неактивен</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'document_detail' document.pk %}" 
+                                           class="btn btn-outline-primary" title="Просмотр">
+                                            👁️
+                                        </a>
+                                        <a href="{% url 'toggle_document_status' document.pk %}" 
+                                           class="btn btn-outline-warning" title="Изменить статус">
+                                            {% if document.is_active %}❌{% else %}✅{% endif %}
+                                        </a>
+                                        <a href="{% url 'delete_document' document.pk %}" 
+                                           class="btn btn-outline-danger" title="Удалить">
+                                            🗑️
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    Нет документов в архиве
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Лог поиска -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Последние поисковые запросы</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Запрос</th>
+                                <th>Дата с</th>
+                                <th>Дата по</th>
+                                <th>Время поиска</th>
+                                <th>Результатов</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in search_logs %}
+                            <tr>
+                                <td>{{ log.query|default:"-" }}</td>
+                                <td>{{ log.date_from|default:"-" }}</td>
+                                <td>{{ log.date_to|default:"-" }}</td>
+                                <td>{{ log.search_date|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    <span class="badge {% if log.results_count > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ log.results_count }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    Нет данных о поиске
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

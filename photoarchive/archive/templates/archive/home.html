@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>Фотоархив компании</h1>
+        <p class="lead">Цифровой архив фотографий и документов</p>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Поиск в архиве</h5>
+                <form method="get" action="{% url 'search' %}">
+                    {% for field in search_form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100">Найти</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<h3>Недавно добавленные документы</h3>
+<div class="row">
+    {% for doc in recent_documents %}
+    <div class="col-md-3 mb-4">
+        <div class="card document-card">
+            {% if doc.thumbnail %}
+                <img src="{{ doc.thumbnail.url }}" class="card-img-top thumbnail" alt="{{ doc.title }}"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            {% endif %}
+            
+            <div class="card-img-top thumbnail bg-light d-flex align-items-center justify-content-center 
+                       {% if doc.thumbnail %}d-none{% endif %}" 
+                 style="height: 200px;">
+                <div class="text-center text-muted">
+                    <span class="fs-1">📄</span>
+                    <br>
+                    <small>{{ doc.get_document_type_display }}</small>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <h6 class="card-title">{{ doc.title|truncatechars:30 }}</h6>
+                <p class="card-text small text-muted">
+                    {{ doc.original_date }}<br>
+                    <span class="badge bg-secondary">{{ doc.get_document_type_display }}</span>
+                </p>
+                <a href="{% url 'document_detail' doc.pk %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h5>Архив пуст</h5>
+            <p>Пока нет документов в архиве. <a href="{% url 'add_document' %}">Добавьте первый документ</a>.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
